@@ -1,0 +1,182 @@
+{
+  "info": {
+    "name": "Leave Management System API",
+    "description": "Success and failure coverage for every documented API endpoint. Set baseUrl, token, managerToken, employeeId, leaveTypeId, and leaveRequestId in the collection variables before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" },
+    { "key": "managerToken", "value": "" },
+    { "key": "employeeId", "value": "000000000000000000000001" },
+    { "key": "managerId", "value": "000000000000000000000002" },
+    { "key": "leaveTypeId", "value": "000000000000000000000003" },
+    { "key": "leaveRequestId", "value": "000000000000000000000004" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register - success",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Taylor Employee\",\n  \"email\": \"taylor@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"employee\"\n}" }, "url": "{{baseUrl}}/auth/register" }
+        },
+        {
+          "name": "Register - validation failure",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"invalid\",\n  \"password\": \"123\"\n}" }, "url": "{{baseUrl}}/auth/register" }
+        },
+        {
+          "name": "Login - success",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"taylor@example.com\",\n  \"password\": \"password123\"\n}" }, "url": "{{baseUrl}}/auth/login" }
+        },
+        {
+          "name": "Login - invalid credentials",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"taylor@example.com\",\n  \"password\": \"wrong-password\"\n}" }, "url": "{{baseUrl}}/auth/login" }
+        },
+        {
+          "name": "Current user - success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/auth/me" }
+        },
+        {
+          "name": "Current user - missing token",
+          "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" }
+        }
+      ]
+    },
+    {
+      "name": "Leave types",
+      "item": [
+        {
+          "name": "Create leave type - success",
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Wellness\",\n  \"description\": \"Personal wellness days\",\n  \"defaultDaysPerYear\": 12\n}" }, "url": "{{baseUrl}}/leave-types" }
+        },
+        {
+          "name": "Create leave type - employee forbidden",
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Unauthorized type\",\n  \"defaultDaysPerYear\": 5\n}" }, "url": "{{baseUrl}}/leave-types" }
+        },
+        {
+          "name": "List leave types - success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leave-types?page=1&limit=10" }
+        },
+        {
+          "name": "List leave types - missing token",
+          "request": { "method": "GET", "url": "{{baseUrl}}/leave-types?page=1&limit=10" }
+        },
+        {
+          "name": "Get leave type - success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leave-types/{{leaveTypeId}}" }
+        },
+        {
+          "name": "Get leave type - not found",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leave-types/000000000000000000000099" }
+        },
+        {
+          "name": "Update leave type - success",
+          "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Wellness Updated\",\n  \"description\": \"Updated allowance\",\n  \"defaultDaysPerYear\": 14\n}" }, "url": "{{baseUrl}}/leave-types/{{leaveTypeId}}" }
+        },
+        {
+          "name": "Update leave type - employee forbidden",
+          "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Blocked update\",\n  \"defaultDaysPerYear\": 1\n}" }, "url": "{{baseUrl}}/leave-types/{{leaveTypeId}}" }
+        },
+        {
+          "name": "Delete leave type - success",
+          "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/leave-types/{{leaveTypeId}}" }
+        },
+        {
+          "name": "Delete leave type - employee forbidden",
+          "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leave-types/{{leaveTypeId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Leave requests",
+      "item": [
+        {
+          "name": "Create leave request - success",
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"leaveType\": \"{{leaveTypeId}}\",\n  \"startDate\": \"2026-12-01\",\n  \"endDate\": \"2026-12-03\",\n  \"reason\": \"Family event\"\n}" }, "url": "{{baseUrl}}/leaves" }
+        },
+        {
+          "name": "Create leave request - invalid dates",
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"leaveType\": \"{{leaveTypeId}}\",\n  \"startDate\": \"2026-12-10\",\n  \"endDate\": \"2026-12-01\"\n}" }, "url": "{{baseUrl}}/leaves" }
+        },
+        {
+          "name": "List leaves - employee success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves?page=1&limit=10" }
+        },
+        {
+          "name": "List leaves - invalid status",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/leaves?status=unknown" }
+        },
+        {
+          "name": "Get leave request - success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/{{leaveRequestId}}" }
+        },
+        {
+          "name": "Get leave request - not found",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/000000000000000000000099" }
+        },
+        {
+          "name": "Update leave request - success",
+          "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"endDate\": \"2026-12-04\",\n  \"reason\": \"Updated family event dates\"\n}" }, "url": "{{baseUrl}}/leaves/{{leaveRequestId}}" }
+        },
+        {
+          "name": "Update leave request - invalid id",
+          "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Update\"\n}" }, "url": "{{baseUrl}}/leaves/not-an-id" }
+        },
+        {
+          "name": "Delete leave request - success",
+          "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/{{leaveRequestId}}" }
+        },
+        {
+          "name": "Delete leave request - missing token",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/leaves/{{leaveRequestId}}" }
+        },
+        {
+          "name": "Approve leave request - success",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/leaves/{{leaveRequestId}}/approve" }
+        },
+        {
+          "name": "Approve leave request - employee forbidden",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/{{leaveRequestId}}/approve" }
+        },
+        {
+          "name": "Reject leave request - success",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Insufficient team coverage\"\n}" }, "url": "{{baseUrl}}/leaves/{{leaveRequestId}}/reject" }
+        },
+        {
+          "name": "Reject leave request - employee forbidden",
+          "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/{{leaveRequestId}}/reject" }
+        },
+        {
+          "name": "My leave requests - success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/mine?page=1&limit=10" }
+        },
+        {
+          "name": "My leave requests - manager forbidden",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/leaves/mine" }
+        },
+        {
+          "name": "Leave balance - success",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/leaves/balance" }
+        },
+        {
+          "name": "Leave balance - invalid employee",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/leaves/balance?employee=not-an-id" }
+        }
+      ]
+    },
+    {
+      "name": "Health and errors",
+      "item": [
+        {
+          "name": "Health - success",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+        },
+        {
+          "name": "Unknown route - 404",
+          "request": { "method": "GET", "url": "{{baseUrl}}/does-not-exist" }
+        }
+      ]
+    }
+  ]
+}
