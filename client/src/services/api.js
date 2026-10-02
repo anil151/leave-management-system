@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "https://leave-management-system-backend-c5xq.onrender.com",
+  baseURL: "https://leave-management-system-backend-c5xq.onrender.com/api",
   headers: {
     'Content-Type': 'application/json',
   },
