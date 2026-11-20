@@ -9,48 +9,34 @@ MERN project scaffold with an Express/MongoDB API and a React/Vite client.
 
 ## Setup
 
-### Server
-
-```powershell
-cd server
-copy .env.example .env
-```
-
-Edit `server/.env` with your MongoDB Atlas URI and a strong JWT secret:
-
-```env
-PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/leave-management-system
-JWT_SECRET=replace-with-a-long-random-secret
-```
-
-Install dependencies and start the API:
+Install the root runner and both application dependencies from the repository root:
 
 ```powershell
 npm install
-npm run dev
+npm install --prefix server
+npm install --prefix client
 ```
 
-The health check is available at `http://localhost:5000/api/health`.
-
-### Client
-
-In a second terminal:
+If you do not already have `server/.env`, create it from the example and set your MongoDB Atlas URI and a strong JWT secret:
 
 ```powershell
-cd client
-copy .env.example .env
-npm install
+if (-not (Test-Path server\.env)) { Copy-Item server\.env.example server\.env }
+```
+
+Edit `server/.env` with values for `MONGO_URI` and `JWT_SECRET`, then start the API and client together from the repository root:
+
+```powershell
 npm run dev
 ```
 
-The client uses `VITE_API_BASE_URL` from `client/.env`, defaulting to `http://localhost:5000/api`.
+The client runs at the URL printed by Vite (usually `http://localhost:5173`). The API health check is available at `http://localhost:5000/api/health`.
+
+The API requires a reachable MongoDB instance. To start either part separately, run `npm run dev --prefix server` or `npm run dev --prefix client` from the repository root.
 
 ## Production build
 
 ```powershell
-cd client
-npm run build
+npm run build --prefix client
 ```
 
 The server can be started with `npm start` from `server/`.
